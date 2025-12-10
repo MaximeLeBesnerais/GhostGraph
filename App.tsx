@@ -11,7 +11,7 @@ import {
 import ArchitectChat from './components/ArchitectChat';
 import GraphVisualizer from './components/GraphVisualizer';
 import FileTree from './components/FileTree';
-import { Sparkles, ArrowRight, LayoutGrid, AlertCircle, Download, MessageSquare, Send, X, HelpCircle, Crosshair, Code2, AlertTriangle, Key } from 'lucide-react';
+import { Sparkles, ArrowRight, LayoutGrid, AlertCircle, Download, MessageSquare, Send, X, HelpCircle, Crosshair, Code2, AlertTriangle, Key, CheckCircle } from 'lucide-react';
 import JSZip from 'jszip';
 
 function App() {
@@ -23,6 +23,7 @@ function App() {
   const [graphData, setGraphData] = useState<GraphData | null>(null);
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
   const [isQuotaError, setIsQuotaError] = useState(false);
   const [focusTrigger, setFocusTrigger] = useState(0);
   
@@ -35,6 +36,17 @@ function App() {
   // MVP Generation State
   const [showMVPModal, setShowMVPModal] = useState(false);
   const [mvpProgress, setMvpProgress] = useState<{current: number, total: number, file: string} | null>(null);
+
+  // Sync selected node when graph data updates (e.g. after code gen)
+  useEffect(() => {
+    if (selectedNode && graphData) {
+      const freshNode = graphData.nodes.find(n => n.id === selectedNode.id);
+      // Only update if content changed or strictly necessary to avoid loops
+      if (freshNode && (freshNode.content !== selectedNode.content || freshNode !== selectedNode)) {
+        setSelectedNode(freshNode);
+      }
+    }
+  }, [graphData, selectedNode]);
 
   const handleApiError = (e: any) => {
     console.error(e);
@@ -162,6 +174,8 @@ function App() {
       }
       
       setGraphData({ ...graphData, nodes: updatedNodes });
+      setNotification("MVP Generation Complete! Code has been populated. Click 'Export Zip' to download the full project.");
+      setTimeout(() => setNotification(null), 8000);
     } catch (e) {
       handleApiError(e);
     } finally {
@@ -347,7 +361,16 @@ ${graphData.nodes.map(n => n.type !== FileType.FOLDER ? `- **${n.name}**: ${n.de
       {/* Main Content */}
       <main className="flex-1 relative overflow-hidden flex">
         
-        {/* Error Overlay / Toast */}
+        {/* Notifications */}
+        {notification && (
+           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-green-950/90 text-green-100 border border-green-700 px-6 py-4 rounded-xl shadow-2xl animate-[fadeIn_0.3s] max-w-md w-full flex items-center gap-3 backdrop-blur-md">
+             <CheckCircle size={24} className="text-green-400" />
+             <div className="text-sm">{notification}</div>
+             <button onClick={() => setNotification(null)} className="ml-auto text-green-400 hover:text-white"><X size={16}/></button>
+           </div>
+        )}
+
+        {/* Error Overlay */}
         {error && (
           <div className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-red-950/90 text-red-100 border border-red-700 px-6 py-4 rounded-xl shadow-2xl animate-[fadeIn_0.3s] max-w-md w-full flex flex-col items-center gap-3 backdrop-blur-md`}>
             <div className="flex items-center gap-2 w-full justify-center text-lg font-bold">
@@ -521,7 +544,7 @@ ${graphData.nodes.map(n => n.type !== FileType.FOLDER ? `- **${n.name}**: ${n.de
         {phase === AppPhase.VISUALIZATION && graphData && (
           <>
             {/* Sidebar File Tree */}
-            <div className="w-72 shrink-0 h-full border-r border-ghost-800 flex flex-col z-20 shadow-xl bg-ghost-950">
+            <div className="w-80 shrink-0 h-full border-r border-ghost-800 flex flex-col z-20 shadow-xl bg-ghost-950 transition-all">
                <div className="p-4 border-b border-ghost-800">
                   <h2 className="text-sm font-bold text-white mb-1">{initialIdea.substring(0, 30)}...</h2>
                   <div className="text-xs text-ghost-500">{language}</div>
@@ -534,7 +557,7 @@ ${graphData.nodes.map(n => n.type !== FileType.FOLDER ? `- **${n.name}**: ${n.de
                />
                
                {/* Selected Details */}
-               <div className="h-1/3 border-t border-ghost-800 bg-ghost-900 p-4 overflow-y-auto">
+               <div className="h-2/5 border-t border-ghost-800 bg-ghost-900 p-4 overflow-y-auto">
                  <h3 className="text-xs font-bold text-ghost-500 uppercase mb-2">Node Details</h3>
                  {selectedNode ? (
                    <div className="space-y-3">
@@ -559,6 +582,27 @@ ${graphData.nodes.map(n => n.type !== FileType.FOLDER ? `- **${n.name}**: ${n.de
                              {t}
                            </span>
                          ))}
+                       </div>
+                     )}
+
+                     {/* Code Preview Section */}
+                     {selectedNode.type === FileType.FILE && (
+                       <div className="mt-4 pt-4 border-t border-ghost-800">
+                          <div className="flex justify-between items-center mb-2">
+                             <span className="text-[10px] font-bold text-ghost-500 uppercase">Generated Code</span>
+                             {selectedNode.content && <span className="text-[10px] text-green-400 flex items-center gap-1"><CheckCircle size={10}/> Ready</span>}
+                          </div>
+                          {selectedNode.content ? (
+                            <div className="bg-black/50 border border-ghost-800 rounded p-2 overflow-x-auto h-40 scrollbar-thin">
+                              <pre className="text-[10px] font-mono text-ghost-300 leading-normal">
+                                {selectedNode.content}
+                              </pre>
+                            </div>
+                          ) : (
+                            <div className="p-3 border border-dashed border-ghost-700 rounded text-xs text-ghost-500 text-center bg-ghost-950/30">
+                              No code generated yet. <br/> Use <span className="text-neon-purple font-medium">Generate MVP</span> to build.
+                            </div>
+                          )}
                        </div>
                      )}
                      
