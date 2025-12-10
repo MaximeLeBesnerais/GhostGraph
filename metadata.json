@@ -1,0 +1,5 @@
+{
+  "name": "GhostGraph",
+  "description": "An AI-powered architectural visualizer that turns project ideas into rigorous file maps and dependency graphs before you write a single line of code.",
+  "requestFramePermissions": []
+}
