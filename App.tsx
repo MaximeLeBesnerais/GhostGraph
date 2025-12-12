@@ -11,7 +11,8 @@ import {
 import ArchitectChat from './components/ArchitectChat';
 import GraphVisualizer from './components/GraphVisualizer';
 import FileTree from './components/FileTree';
-import { Sparkles, ArrowRight, LayoutGrid, AlertCircle, Download, MessageSquare, Send, X, HelpCircle, Crosshair, Code2, AlertTriangle, Key, CheckCircle } from 'lucide-react';
+import AboutOverlay from './components/AboutOverlay';
+import { Sparkles, ArrowRight, LayoutGrid, AlertCircle, Download, MessageSquare, Send, X, HelpCircle, Crosshair, Code2, AlertTriangle, Key, CheckCircle, Info } from 'lucide-react';
 import JSZip from 'jszip';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
   const [notification, setNotification] = useState<string | null>(null);
   const [isQuotaError, setIsQuotaError] = useState(false);
   const [focusTrigger, setFocusTrigger] = useState(0);
+  const [showAbout, setShowAbout] = useState(false);
   
   // Blueprint Chat State
   const [showBlueprintChat, setShowBlueprintChat] = useState(false);
@@ -318,49 +320,63 @@ ${graphData.nodes.map(n => n.type !== FileType.FOLDER ? `- **${n.name}**: ${n.de
           GhostGraph
         </div>
         
-        {phase === AppPhase.VISUALIZATION && (
-          <div className="flex items-center gap-2">
-            {!mvpProgress && (
+        <div className="flex items-center gap-4">
+          
+          {phase === AppPhase.VISUALIZATION && (
+            <div className="flex items-center gap-2">
+              {!mvpProgress && (
+                <button 
+                  onClick={() => setShowMVPModal(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-neon-purple/20 to-neon-blue/20 hover:from-neon-purple/40 hover:to-neon-blue/40 border border-neon-purple/50 text-white rounded transition-all"
+                >
+                  <Code2 size={14} /> Generate MVP
+                </button>
+              )}
               <button 
-                onClick={() => setShowMVPModal(true)}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-neon-purple/20 to-neon-blue/20 hover:from-neon-purple/40 hover:to-neon-blue/40 border border-neon-purple/50 text-white rounded transition-all"
+                onClick={handleExportZip}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-ghost-800 hover:bg-neon-blue/20 hover:text-neon-blue border border-ghost-700 hover:border-neon-blue rounded transition-all"
               >
-                <Code2 size={14} /> Generate MVP
+                <Download size={14} /> Export Zip
               </button>
-            )}
-            <button 
-              onClick={handleExportZip}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-ghost-800 hover:bg-neon-blue/20 hover:text-neon-blue border border-ghost-700 hover:border-neon-blue rounded transition-all"
-            >
-              <Download size={14} /> Export Zip
-            </button>
-            <button 
-              onClick={() => setShowBlueprintChat(!showBlueprintChat)}
-              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium border rounded transition-all ${showBlueprintChat ? 'bg-neon-purple text-white border-neon-purple' : 'bg-ghost-800 border-ghost-700 text-ghost-300 hover:text-white'}`}
-            >
-              <HelpCircle size={14} /> Ask Architect
-            </button>
-          </div>
-        )}
+              <button 
+                onClick={() => setShowBlueprintChat(!showBlueprintChat)}
+                className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium border rounded transition-all ${showBlueprintChat ? 'bg-neon-purple text-white border-neon-purple' : 'bg-ghost-800 border-ghost-700 text-ghost-300 hover:text-white'}`}
+              >
+                <HelpCircle size={14} /> Ask Architect
+              </button>
+            </div>
+          )}
 
-        <div className="flex items-center gap-4 text-xs text-ghost-500 font-mono hidden md:flex">
-           <span className={`flex items-center gap-1 ${phase === AppPhase.INPUT ? 'text-neon-blue' : ''}`}>
-             <span className="w-1.5 h-1.5 rounded-full bg-current"></span> Input
-           </span>
-           <span className="w-4 h-px bg-ghost-800"></span>
-           <span className={`flex items-center gap-1 ${phase === AppPhase.REFINEMENT ? 'text-neon-blue' : ''}`}>
-             <span className="w-1.5 h-1.5 rounded-full bg-current"></span> Refine
-           </span>
-           <span className="w-4 h-px bg-ghost-800"></span>
-           <span className={`flex items-center gap-1 ${phase === AppPhase.VISUALIZATION ? 'text-neon-blue' : ''}`}>
-             <span className="w-1.5 h-1.5 rounded-full bg-current"></span> Blueprint
-           </span>
+          <button 
+            onClick={() => setShowAbout(true)}
+            className="p-1.5 text-ghost-400 hover:text-white hover:bg-ghost-800 rounded transition-colors"
+            title="About GhostGraph"
+          >
+            <Info size={18} />
+          </button>
+
+          <div className="flex items-center gap-4 text-xs text-ghost-500 font-mono hidden md:flex border-l border-ghost-800 pl-4">
+             <span className={`flex items-center gap-1 ${phase === AppPhase.INPUT ? 'text-neon-blue' : ''}`}>
+               <span className="w-1.5 h-1.5 rounded-full bg-current"></span> Input
+             </span>
+             <span className="w-4 h-px bg-ghost-800"></span>
+             <span className={`flex items-center gap-1 ${phase === AppPhase.REFINEMENT ? 'text-neon-blue' : ''}`}>
+               <span className="w-1.5 h-1.5 rounded-full bg-current"></span> Refine
+             </span>
+             <span className="w-4 h-px bg-ghost-800"></span>
+             <span className={`flex items-center gap-1 ${phase === AppPhase.VISUALIZATION ? 'text-neon-blue' : ''}`}>
+               <span className="w-1.5 h-1.5 rounded-full bg-current"></span> Blueprint
+             </span>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 relative overflow-hidden flex">
         
+        {/* Overlays */}
+        {showAbout && <AboutOverlay onClose={() => setShowAbout(false)} />}
+
         {/* Notifications */}
         {notification && (
            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-green-950/90 text-green-100 border border-green-700 px-6 py-4 rounded-xl shadow-2xl animate-[fadeIn_0.3s] max-w-md w-full flex items-center gap-3 backdrop-blur-md">
