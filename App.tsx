@@ -431,9 +431,8 @@ function App() {
                  Code <br/> 
                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-ghost-400 to-ghost-600">Unseen.</span>
                </h1>
-               <p className="text-xl text-ghost-400 max-w-lg leading-relaxed font-light">
-                 Skip the boilerplate. Define your architecture first. 
-                 GhostGraph transforms raw concepts into rigorous, dependency-validated blueprints.
+               <p className="text-xl text-ghost-400 max-w-xl leading-relaxed font-light">
+                  Abandon the "code-first" chaos. GhostGraph acts as your proactive system architect, transforming vague concepts into rigorous, dependency-validated blueprints. Visualize your entire stack, refine complex data flows, and forge a production-ready MVP foundation before a single line of code is written.
                </p>
                
                <div className="mt-16 flex gap-12">

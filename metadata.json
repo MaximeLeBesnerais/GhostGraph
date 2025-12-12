@@ -1,5 +1,5 @@
 {
   "name": "GhostGraph",
-  "description": "An AI-powered architectural visualizer that turns project ideas into rigorous file maps and dependency graphs before you write a single line of code.",
+  "description": "GhostGraph is a proactive architectural visualization platform that empowers developers to design, refine, and validate software systems before implementation. Leveraging advanced AI models, it converts abstract project descriptions into rigorous, interactive file maps and dependency graphs. Key features include an expert 'Architect' chat agent for specification refinement, a physics-based graph visualizer for exploring structural relationships, and an automated 'MVP Forge' that generates scaffolding code for your entire project. GhostGraph is designed to eliminate architectural debt at the source, enforcing separation of concerns and clean design patterns from day one.",
   "requestFramePermissions": []
 }
