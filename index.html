@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GhostGraph | Architectural Visualizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
@@ -26,12 +26,29 @@
                 700: '#27272a',
                 800: '#18181b',
                 900: '#09090b',
-                950: '#000000',
+                950: '#050505', // Darker base
+              },
+              glass: {
+                100: 'rgba(255, 255, 255, 0.03)',
+                200: 'rgba(255, 255, 255, 0.05)',
+                300: 'rgba(255, 255, 255, 0.1)',
+                border: 'rgba(255, 255, 255, 0.08)',
               },
               neon: {
                 blue: '#3b82f6',
                 purple: '#8b5cf6',
                 cyan: '#06b6d4',
+                glow: '#6366f1',
+              }
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
               }
             }
           },
@@ -40,23 +57,54 @@
     </script>
     <style>
       body {
-        background-color: #09090b;
+        background-color: #050505;
         color: #e4e4e7;
+        overflow: hidden; /* Prevent body scroll, handle in app */
       }
-      /* Custom Scrollbar */
+      
+      /* Cinematic Noise Texture */
+      .bg-noise {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.03;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      }
+
+      /* Custom Scrollbar - Minimal */
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #18181b; 
+        background: transparent; 
       }
       ::-webkit-scrollbar-thumb {
-        background: #3f3f46; 
-        border-radius: 4px;
+        background: rgba(255,255,255,0.1); 
+        border-radius: 3px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #52525b; 
+        background: rgba(255,255,255,0.2); 
+      }
+
+      /* Glass Utilities */
+      .glass-panel {
+        background: rgba(9, 9, 11, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+      
+      .glass-panel-dark {
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
     </style>
   <script type="importmap">
@@ -74,6 +122,7 @@
 </script>
 </head>
   <body>
-    <div id="root"></div>
+    <div class="bg-noise"></div>
+    <div id="root" class="relative z-10 w-full h-screen"></div>
   </body>
 </html>

@@ -60,6 +60,7 @@ You will be given the file's metadata, the project context, and a list of relate
 const chatModel = 'gemini-2.5-flash';
 const genModel = 'gemini-2.5-flash';
 const codingModel = 'gemini-3-pro-preview'; // Better for coding tasks
+const liteModel = 'gemini-flash-lite-latest'; // For auto-replies
 
 let activeChat: Chat | null = null;
 let blueprintChat: Chat | null = null;
@@ -87,6 +88,27 @@ export const sendMessageToArchitect = async (message: string): Promise<string> =
   } catch (error: any) {
     console.error("Architect Error:", error);
     throw error;
+  }
+};
+
+export const generateUserProxyResponse = async (architectQuestions: string, projectIdea: string): Promise<string> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: liteModel,
+      contents: `
+        You are a user trying to build a very simple, small MVP version of this idea: "${projectIdea}".
+        The system architect just asked you these questions:
+        ${architectQuestions}
+        
+        Answer them concisely. 
+        - Choose the simplest possible option (e.g., LocalStorage instead of Database, CLI instead of GUI if applicable).
+        - Keep the project scope small.
+        - Do not ask questions back. Just answer.
+      `,
+    });
+    return response.text || "Keep it simple.";
+  } catch (e) {
+    return "Simple, minimal implementation.";
   }
 };
 
